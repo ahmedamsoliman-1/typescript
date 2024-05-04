@@ -1,4 +1,4 @@
-export class Message {
+class Message {
     title: string;
     message: string;
     isSent: boolean;
@@ -7,6 +7,11 @@ export class Message {
         this.title = title;
         this.message = message;
         this.isSent = false;
+    }
+
+    get messageStatus(): string {
+        const sentMessage = this.isSent ? 'Has been sent.' : 'Has not been sent.';
+        return `${this.title}: ${sentMessage}`;
     }
 
     previewMessage(): string {
@@ -20,3 +25,4 @@ const message = new Message(
 );
 
 message.previewMessage();
+message.messageStatus;
