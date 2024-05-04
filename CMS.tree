@@ -1,0 +1,37 @@
+cms/
+│
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   └── index.ts
+│   ├── package.json
+│   └── ...
+│
+├── frontend/
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── views/
+│   │   ├── App.vue
+│   │   └── main.ts
+│   ├── package.json
+│   └── ...
+│
+├── infrastructure/
+│   ├── terraform/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── ...
+│   ├── ansible/
+│   │   ├── playbook.yml
+│   │   ├── inventory.ini
+│   │   └── ...
+│   └── ...
+│
+├── README.md
+├── .gitignore
+└── ...
