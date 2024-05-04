@@ -12,9 +12,13 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/content', contentRoutes);
+// // Routes
+// app.use('/', (req, res) => {
+//   res.send('Hello World!');
+// });
+
+app.use(authRoutes);
+app.use(contentRoutes);
 
 // Start server
 app.listen(PORT, () => {

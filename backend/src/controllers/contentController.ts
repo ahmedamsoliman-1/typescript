@@ -21,8 +21,10 @@ export const publishContent = (req: Request, res: Response) => {
 export const getContent = (req: Request, res: Response) => {
   // Implement get content logic here
 };
-
+console.log("S")
 // Search content controller
 export const searchContent = (req: Request, res: Response) => {
   // Implement search content logic here
+  console.log('Search content');
+  res.send('Search content');
 };
