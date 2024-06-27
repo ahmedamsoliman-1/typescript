@@ -10,7 +10,7 @@ interface VeondorDoc extends Document {
     email: string;
     password: string;
     salt: string;
-    serviceAvaiable: string;
+    serviceAvaiable: boolean;
     coverImages: [string];
     rating: number;
     // foods: any;
@@ -26,7 +26,7 @@ const VendorSchema = new Schema({
     email: {type: String, required: true},
     password: {type: String, required: true},
     salt: {type: String, required: true},
-    serviceAvaiable: {type: String},
+    serviceAvaiable: {type: Boolean},
     coverImages: {type: [String]},
     rating: {type: Number},
     // foods: [{
