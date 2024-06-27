@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { VendorLoginInputs, EditVendorInputs } from "../dto";
+import { VendorLoginInputs, EditVendorInputs, CreateFoodInputs } from "../dto";
 import { FindVendor } from "./AdminController";
 import { ValidatePassword, GenerateSignature } from "../utility";
+import { Food } from "../models";
 
 export const VendorLogin = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = <VendorLoginInputs>req.body;
@@ -71,6 +72,46 @@ export const UpdateVendorService = async (req: Request, res: Response, next: Nex
             return res.json(saveResult);
         } else {
             return res.json({ "message": "Vendor not found" });
+        }
+    } else {
+        return res.json({ "message": "User not found" });
+    }
+};
+
+export const AddFood = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+
+    if (user) {
+        const { name, description, price, category, foodType, readyTime } = <CreateFoodInputs>req.body;
+        const vendor = await FindVendor(user._id);
+        if (vendor !== null) {
+            const createdFood = await Food.create( {
+                vendorId: vendor._id, 
+                name: name, 
+                description: description,
+                price: price,
+                category: category,
+                foodType: foodType,
+                readyTime: readyTime,
+                images: ['mock.jpeg'],
+                rating: 0
+            });
+            vendor.foods.push(createdFood);
+            const result = await vendor.save();
+            return res.json(result);
+        }
+    } else {
+        return res.json({ "message": "User not found" });
+    }
+};
+
+export const GetFoods = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+
+    if (user) {
+        const foods = await Food.find( { vendorId: user._id }); 
+        if (foods !== null) {
+            return res.json(foods);
         }
     } else {
         return res.json({ "message": "User not found" });
