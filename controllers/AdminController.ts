@@ -3,20 +3,25 @@ import { CreateVendorInput } from "../dto";
 import { Vendor } from "../models";
 import { GenerateSalt, GeneratePassword } from "../utility";
 
+export const FindVendor = async (id: string | undefined, email?: string) => {
+    if (email) {
+        return await Vendor.findOne({ email: email })
+    } else {
+        return await Vendor.findById(id)
+    }
+}
+
 export const CreateVendor = async (req: Request, res: Response, next: NextFunction) => {
     const { name, address, pincode, foodType, email, password, ownerName, phone } = <CreateVendorInput>req.body;
 
-    const exsistingVendor = await Vendor.findOne({ email: email });
+    const exsistingVendor = await FindVendor(undefined, email);
     if (exsistingVendor) {
         return res.json({ message: 'A user with that email already exists' })
     }
 
-    // Generate a salt
     const salt = await GenerateSalt();
     const userPassword = await GeneratePassword(password, salt);
     
-    // Encrypt the password using the salt
-
     const CreateVendor = await Vendor.create({
         name: name,
         address: address,
@@ -37,9 +42,17 @@ export const CreateVendor = async (req: Request, res: Response, next: NextFuncti
 }
 
 export const GetVendors = async (req: Request, res: Response, next: NextFunction) => {
-    res.send('Hello Vendor')
+    const vendors = await Vendor.find();
+    if (vendors !== null) {
+        res.json(vendors)
+    }
 }
 
-export const GetVendorByID = async (req: Request, res: Response, next: NextFunction) => {
-    res.send('Hello Vendor')
+export const getVendorByID = async (req: Request, res: Response, next: NextFunction) => {
+    const vendorId = req.params.id;
+    const vendor = await FindVendor(vendorId);
+
+    if (vendor !== null) {
+        return res.json(vendor)
+    }
 }
