@@ -12,7 +12,7 @@ export const FindVendor = async (id: string | undefined, email?: string) => {
 }
 
 export const CreateVendor = async (req: Request, res: Response, next: NextFunction) => {
-    const { name, address, pincode, foodType, email, password, ownerName, phone } = <CreateVendorInput>req.body;
+    const { name, address, pincode, foodTypes, email, password, ownerName, phone } = <CreateVendorInput>req.body;
 
     const exsistingVendor = await FindVendor(undefined, email);
     if (exsistingVendor) {
@@ -26,7 +26,7 @@ export const CreateVendor = async (req: Request, res: Response, next: NextFuncti
         name: name,
         address: address,
         pincode: pincode,
-        foodType: foodType,
+        foodTypes: foodTypes,
         email: email,
         password: userPassword,
         salt: salt,
