@@ -84,7 +84,12 @@ export const AddFood = async (req: Request, res: Response, next: NextFunction) =
     if (user) {
         const { name, description, price, category, foodType, readyTime } = <CreateFoodInputs>req.body;
         const vendor = await FindVendor(user._id);
+        console.log(vendor)
         if (vendor !== null) {
+
+            const files = req.files as [Express.Multer.File];
+            const images = files.map((file: Express.Multer.File) => file.filename);
+            console.log(images);
             const createdFood = await Food.create( {
                 vendorId: vendor._id, 
                 name: name, 
@@ -93,7 +98,7 @@ export const AddFood = async (req: Request, res: Response, next: NextFunction) =
                 category: category,
                 foodType: foodType,
                 readyTime: readyTime,
-                images: ['mock.jpeg'],
+                images: images,
                 rating: 0
             });
             vendor.foods.push(createdFood);
