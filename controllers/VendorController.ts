@@ -61,6 +61,25 @@ export const UpdateVendorProfile = async (req: Request, res: Response, next: Nex
     }
 };
 
+export const updateVendorCoverImage = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+
+    if (user) {
+        const exsistingVendor = await FindVendor(user._id);
+        if (exsistingVendor) {
+            const files = req.files as [Express.Multer.File];
+            const images = files.map((file: Express.Multer.File) => file.filename);
+            exsistingVendor.coverImages.push(...images);
+            const saveResult = await exsistingVendor.save();
+            return res.json(saveResult);
+        } else {
+            return res.json({ "message": "Vendor not found" });
+        }
+    } else {
+        return res.json({ "message": "User not found" });
+    }
+}
+
 export const UpdateVendorService = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
 
@@ -84,12 +103,10 @@ export const AddFood = async (req: Request, res: Response, next: NextFunction) =
     if (user) {
         const { name, description, price, category, foodType, readyTime } = <CreateFoodInputs>req.body;
         const vendor = await FindVendor(user._id);
-        console.log(vendor)
         if (vendor !== null) {
 
             const files = req.files as [Express.Multer.File];
             const images = files.map((file: Express.Multer.File) => file.filename);
-            console.log(images);
             const createdFood = await Food.create( {
                 vendorId: vendor._id, 
                 name: name, 
