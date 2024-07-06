@@ -2,12 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import { CreateVendorInput } from "../dto";
 import { Vendor } from "../models";
 import { GenerateSalt, GeneratePassword } from "../utility";
+import { 
+    makeResponseForSuccess, 
+    makeResponseForFailed, 
+    makeResponseForBadRequest, 
+    makeResponseForUnauthenticated 
+} from "../utility";
 
 export const FindVendor = async (id: string | undefined, email?: string) => {
     if (email) {
-        return await Vendor.findOne({ email: email })
+        return await Vendor.findOne({ email: email });
     } else {
-        return await Vendor.findById(id)
+        return await Vendor.findById(id);
     }
 }
 
@@ -16,13 +22,13 @@ export const CreateVendor = async (req: Request, res: Response, next: NextFuncti
 
     const exsistingVendor = await FindVendor(undefined, email);
     if (exsistingVendor) {
-        return res.json({ message: 'A user with that email already exists' })
+        return makeResponseForFailed({ res, message: 'A user with that email already exists' });
     }
 
     const salt = await GenerateSalt();
     const userPassword = await GeneratePassword(password, salt);
-    
-    const CreateVendor = await Vendor.create({
+
+    const newVendor = await Vendor.create({
         name: name,
         address: address,
         pincode: pincode,
@@ -38,13 +44,15 @@ export const CreateVendor = async (req: Request, res: Response, next: NextFuncti
         foods: []
     });
 
-    res.json(CreateVendor)
+    return makeResponseForSuccess({ res, result: newVendor });
 }
 
 export const GetVendors = async (req: Request, res: Response, next: NextFunction) => {
     const vendors = await Vendor.find();
     if (vendors !== null) {
-        res.json(vendors)
+        return makeResponseForSuccess({ res, result: vendors });
+    } else {
+        return makeResponseForFailed({ res, message: 'No vendors found' });
     }
 }
 
@@ -53,6 +61,8 @@ export const getVendorByID = async (req: Request, res: Response, next: NextFunct
     const vendor = await FindVendor(vendorId);
 
     if (vendor !== null) {
-        return res.json(vendor)
+        return makeResponseForSuccess({ res, result: vendor });
+    } else {
+        return makeResponseForFailed({ res, message: 'Vendor not found' });
     }
 }

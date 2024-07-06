@@ -3,6 +3,12 @@ import { VendorLoginInputs, EditVendorInputs, CreateFoodInputs } from "../dto";
 import { FindVendor } from "./AdminController";
 import { ValidatePassword, GenerateSignature } from "../utility";
 import { Food } from "../models";
+import { 
+    makeResponseForSuccess, 
+    makeResponseForFailed, 
+    makeResponseForBadRequest, 
+    makeResponseForUnauthenticated 
+} from "../utility";
 
 export const VendorLogin = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = <VendorLoginInputs>req.body;
@@ -16,12 +22,12 @@ export const VendorLogin = async (req: Request, res: Response, next: NextFunctio
                 foodTypes: vendor.foodType,
                 name: vendor.name
             });
-            return res.json(signature);
+            return makeResponseForSuccess({ res, message: 'Login successful', result: { signature } });
         } else {
-            return res.json({ "message": "Incorrect password" });
+            return makeResponseForFailed({ res, message: 'Incorrect password' });
         }
     } else {
-        return res.json({ "message": "Vendor not found" });
+        return makeResponseForFailed({ res, message: 'Vendor not found' });
     }
 };
 
@@ -30,19 +36,19 @@ export const GetVendorProfile = async (req: Request, res: Response, next: NextFu
     if (user) {
         const exsistingVendor = await FindVendor(user._id);
         if (exsistingVendor) {
-            return res.json(exsistingVendor);
+            return makeResponseForSuccess({ res, result: exsistingVendor });
         } else {
-            return res.json({ "message": "Vendor not found" });
+            return makeResponseForFailed({ res, message: 'Vendor not found' });
         }
     } else {
-        return res.json({ "message": "User not found" });
+        return makeResponseForFailed({ res, message: 'User not found' });
     }
 };
 
 export const UpdateVendorProfile = async (req: Request, res: Response, next: NextFunction) => {
     const { name, address, phone, foodTypes } = <EditVendorInputs>req.body;
     const user = req.user;
-    
+
     if (user) {
         const exsistingVendor = await FindVendor(user._id);
         if (exsistingVendor) {
@@ -52,12 +58,12 @@ export const UpdateVendorProfile = async (req: Request, res: Response, next: Nex
             exsistingVendor.foodType = foodTypes;
 
             const saveResult = await exsistingVendor.save();
-            return res.json(saveResult);
+            return makeResponseForSuccess({ res, result: saveResult });
         } else {
-            return res.json({ "message": "Vendor not found" });
+            return makeResponseForFailed({ res, message: 'Vendor not found' });
         }
     } else {
-        return res.json({ "message": "User not found" });
+        return makeResponseForFailed({ res, message: 'User not found' });
     }
 };
 
@@ -71,12 +77,12 @@ export const updateVendorCoverImage = async (req: Request, res: Response, next: 
             const images = files.map((file: Express.Multer.File) => file.filename);
             exsistingVendor.coverImages.push(...images);
             const saveResult = await exsistingVendor.save();
-            return res.json(saveResult);
+            return makeResponseForSuccess({ res, result: saveResult });
         } else {
-            return res.json({ "message": "Vendor not found" });
+            return makeResponseForFailed({ res, message: 'Vendor not found' });
         }
     } else {
-        return res.json({ "message": "User not found" });
+        return makeResponseForFailed({ res, message: 'User not found' });
     }
 }
 
@@ -88,12 +94,12 @@ export const UpdateVendorService = async (req: Request, res: Response, next: Nex
         if (exsistingVendor) {
             exsistingVendor.serviceAvaiable = !exsistingVendor.serviceAvaiable;
             const saveResult = await exsistingVendor.save();
-            return res.json(saveResult);
+            return makeResponseForSuccess({ res, result: saveResult });
         } else {
-            return res.json({ "message": "Vendor not found" });
+            return makeResponseForFailed({ res, message: 'Vendor not found' });
         }
     } else {
-        return res.json({ "message": "User not found" });
+        return makeResponseForFailed({ res, message: 'User not found' });
     }
 };
 
@@ -107,7 +113,7 @@ export const AddFood = async (req: Request, res: Response, next: NextFunction) =
 
             const files = req.files as [Express.Multer.File];
             const images = files.map((file: Express.Multer.File) => file.filename);
-            const createdFood = await Food.create( {
+            const createdFood = await Food.create({
                 vendorId: vendor._id, 
                 name: name, 
                 description: description,
@@ -120,10 +126,12 @@ export const AddFood = async (req: Request, res: Response, next: NextFunction) =
             });
             vendor.foods.push(createdFood);
             const result = await vendor.save();
-            return res.json(result);
+            return makeResponseForSuccess({ res, result });
+        } else {
+            return makeResponseForFailed({ res, message: 'Vendor not found' });
         }
     } else {
-        return res.json({ "message": "User not found" });
+        return makeResponseForFailed({ res, message: 'User not found' });
     }
 };
 
@@ -131,11 +139,13 @@ export const GetFoods = async (req: Request, res: Response, next: NextFunction) 
     const user = req.user;
 
     if (user) {
-        const foods = await Food.find( { vendorId: user._id }); 
+        const foods = await Food.find({ vendorId: user._id }); 
         if (foods !== null) {
-            return res.json(foods);
+            return makeResponseForSuccess({ res, result: foods });
+        } else {
+            return makeResponseForFailed({ res, message: 'No foods found' });
         }
     } else {
-        return res.json({ "message": "User not found" });
+        return makeResponseForFailed({ res, message: 'User not found' });
     }
 };
