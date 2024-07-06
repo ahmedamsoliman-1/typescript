@@ -21,6 +21,7 @@ export const Authenticate = async (req: Request, res: Response, next: NextFuncti
 
     const validate = await ValidateSignature(req);
     if (validate) {
+
         next();
     } else {
         return res.status(401).json({
