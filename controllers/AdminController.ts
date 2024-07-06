@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { CreateVendorInput } from "../dto";
 import { Vendor } from "../models";
 import { GenerateSalt, GeneratePassword } from "../utility";
-import Logger from "../utility/Logger";
+import logger from "../utility/logger";
 import { 
     makeResponseForSuccess, 
     makeResponseForFailed, 
@@ -23,7 +23,7 @@ export const CreateVendor = async (req: Request, res: Response, next: NextFuncti
 
     const exsistingVendor = await FindVendor(undefined, email);
     if (exsistingVendor) {
-        Logger.warn(`Attempt to create a vendor with existing email: ${email}`);
+        logger.warn(`Attempt to create a vendor with existing email: ${email}`);
         return makeResponseForFailed({ res, message: 'A user with that email already exists' });
     }
 
@@ -47,10 +47,10 @@ export const CreateVendor = async (req: Request, res: Response, next: NextFuncti
             foods: []
         });
 
-        Logger.info(`Vendor created successfully with email: ${email}`);
+        logger.info(`Vendor created successfully with email: ${email}`, { method: req.method } );
         return makeResponseForSuccess({ res, result: newVendor });
     } catch (error) {
-        Logger.error(`Error creating vendor: ${error.message}`);
+        logger.error(`Error creating vendor: ${error}`, { method: req.method } );
         return makeResponseForFailed({ res, message: 'Error creating vendor' });
     }
 }
@@ -59,14 +59,15 @@ export const GetVendors = async (req: Request, res: Response, next: NextFunction
     try {
         const vendors = await Vendor.find();
         if (vendors !== null) {
-            Logger.info('Fetched all vendors successfully');
+            console.log(req.method)
+            logger.info('Fetched all vendors successfully', { method: req.method } );
             return makeResponseForSuccess({ res, result: vendors });
         } else {
-            Logger.warn('No vendors found');
+            logger.warn('No vendors found', { method: req.method } );
             return makeResponseForFailed({ res, message: 'No vendors found' });
         }
     } catch (error) {
-        Logger.error(`Error fetching vendors: ${error.message}`);
+        logger.error(`Error fetching vendors: ${error}`, { method: req.method } );
         return makeResponseForFailed({ res, message: 'Error fetching vendors' });
     }
 }
@@ -76,14 +77,14 @@ export const getVendorByID = async (req: Request, res: Response, next: NextFunct
     try {
         const vendor = await FindVendor(vendorId);
         if (vendor !== null) {
-            Logger.info(`Vendor fetched successfully with ID: ${vendorId}`);
+            logger.info(`Vendor fetched successfully with ID: ${vendorId}`, { method: req.method } );
             return makeResponseForSuccess({ res, result: vendor });
         } else {
-            Logger.warn(`Vendor not found with ID: ${vendorId}`);
+            logger.warn(`Vendor not found with ID: ${vendorId}`, { method: req.method } );
             return makeResponseForFailed({ res, message: 'Vendor not found' });
         }
     } catch (error) {
-        Logger.error(`Error fetching vendor by ID: ${error.message}`);
+        logger.error(`Error fetching vendor by ID: ${error}`, { method: req.method } );
         return makeResponseForFailed({ res, message: 'Error fetching vendor' });
     }
 }

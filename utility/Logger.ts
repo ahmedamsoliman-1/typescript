@@ -2,14 +2,18 @@ import { createLogger, format, transports } from 'winston';
 
 const { combine, timestamp, printf, colorize } = format;
 
-// Define custom format for log messages
-const myFormat = printf(({ level, message, timestamp }) => {
-    return `${timestamp} [${level}]: ${message}`;
+// const myFormat = printf(({ level, message, timestamp, method }) => {
+//     return `${timestamp} [${level}] ${method ? `[${method}]` : ''}: ${message}`;
+// });
+const myFormat = printf(({ level, message, timestamp, method }) => {
+    const methodInfo = method ? `[${method}] ` : ''; // Include method if available
+    return `${timestamp} [${level}] ${methodInfo}${message}`;
 });
+
 
 // Create logger instance
 const logger = createLogger({
-    level: 'info', // Default log level
+    level: 'info',
     format: combine(
         timestamp(),
         myFormat
@@ -22,9 +26,12 @@ const logger = createLogger({
                 myFormat
             )
         }),
-        new transports.File({ filename: 'error.log', level: 'error' }),
-        new transports.File({ filename: 'combined.log' })
+        new transports.File({ filename: 'logs/info.log', level: 'info' }),
+        new transports.File({ filename: 'logs/warn.log', level: 'warn' }),
+        new transports.File({ filename: 'logs/error.log', level: 'error' }),
+        new transports.File({ filename: 'logs/combined.log' })
     ]
 });
+
 
 export default logger;
